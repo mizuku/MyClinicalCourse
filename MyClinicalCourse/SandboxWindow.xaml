@@ -1,0 +1,135 @@
+﻿<Window x:Class="MyClinicalCourse.SandboxWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MyClinicalCourse"
+        xmlns:cc="clr-namespace:MyClinicalCourse.ClinicalCourse"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        mc:Ignorable="d"
+        Title="SandboxWindow" Height="720" Width="900">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="500" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <!-- 看護経過表 -->
+            <cc:ClinicalCourse
+                ColumnWidth="{Binding ElementName=ColumnWidthSlider,Path=Value}"
+                TableRowHeight="{Binding ElementName=TableRowHeightSlider,Path=Value}"
+                LabelField="Label" TableDictionaryField="TableItems"
+                DataSource="{Binding Courses}">
+                <cc:ClinicalCourse.Axes>
+                    <cc:Axis Index="1" x:Name="BloodPressureAxis" Foreground="Red"
+                             Maximum="{Binding ElementName=AxisMaximumSlider,Path=Value}"
+                             Minimum="{Binding ElementName=AxisMinimumSlider,Path=Value}" 
+                             MajorInterval="{Binding ElementName=AxisMajorIntervalSlider,Path=Value}" MajorTick="Red"
+                             MinorInterval="{Binding ElementName=AxisMinorIntervalSlider,Path=Value}" MinorTick="Red" IsChecked="True" />
+                    <cc:Axis Index="0" x:Name="BodyTemperatureAxis" Foreground="Blue" Maximum="42" Minimum="34"
+                         MajorInterval="2" MajorTick="Purple" MinorInterval="0.5" MinorTick="Green"  IsChecked="True" />
+                    <cc:Axis Index="2" x:Name="PulseAxis" Foreground="DarkGoldenrod" Maximum="120" Minimum="80"
+                         MajorInterval="10" MajorTick="GreenYellow"  IsChecked="True" IsShowTick="False" />
+                    <cc:Axis Index="3" x:Name="BreathingAxis" Foreground="Orange" Maximum="30" Minimum="15"
+                         MajorInterval="5" MajorTick="Orange" IsShowTick="False" />
+                </cc:ClinicalCourse.Axes>
+                <cc:ClinicalCourse.Series>
+                    <cc:Series DataField="BloodPressure" AxisName="BloodPressureAxis"
+                               Stroke="Red">
+                        <cc:Series.MarkerTemplate>
+                            <DataTemplate>
+                                <Ellipse Width="10" Height="10" Fill="Red" />
+                            </DataTemplate>
+                        </cc:Series.MarkerTemplate>
+                    </cc:Series>
+                    <cc:Series DataField="BodyTemperature" AxisName="BodyTemperatureAxis"
+                           Stroke="Blue" StrokeThickness="5">
+                        <cc:Series.MarkerTemplate>
+                            <DataTemplate>
+                                <Rectangle Width="10" Height="10" Fill="Blue" />
+                            </DataTemplate>
+                        </cc:Series.MarkerTemplate>
+                    </cc:Series>
+                    <cc:Series DataField="Pulse" AxisName="PulseAxis"
+                           Stroke="DarkGoldenrod">
+                        <cc:Series.MarkerTemplate>
+                            <DataTemplate>
+                                <Grid Width="10" Height="10">
+                                    <Line X1="0" X2="10" Y1="5" Y2="5" Stroke="DarkGoldenrod" StrokeThickness="2" />
+                                    <Line X1="5" X2="5" Y1="0" Y2="10" Stroke="DarkGoldenrod" StrokeThickness="2" />
+                                </Grid>
+                            </DataTemplate>
+                        </cc:Series.MarkerTemplate>
+                    </cc:Series>
+                    <cc:Series DataField="Breathing" AxisName="BreathingAxis"
+                           Stroke="Orange">
+                        <cc:Series.MarkerTemplate>
+                            <DataTemplate>
+                                <Grid Width="10" Height="10">
+                                    <Line X1="0" X2="10" Y1="0" Y2="10" Stroke="Orange" StrokeThickness="2" />
+                                    <Line X1="0" X2="10" Y1="10" Y2="0" Stroke="Orange" StrokeThickness="2" />
+                                </Grid>
+                            </DataTemplate>
+                        </cc:Series.MarkerTemplate>
+                    </cc:Series>
+                </cc:ClinicalCourse.Series>
+            </cc:ClinicalCourse>
+        </Grid>
+        <WrapPanel Grid.Row="1" Orientation="Horizontal">
+            <WrapPanel.Resources>
+                <Style TargetType="{x:Type StackPanel}">
+                    <Setter Property="Orientation" Value="Horizontal" />
+                    <Setter Property="Margin" Value="10,10,20,0" />
+                </Style>
+                <Style TargetType="{x:Type Slider}">
+                    <Setter Property="Width" Value="100" />
+                    <Setter Property="Margin" Value="5,0,5,0" />
+                    <Setter Property="SmallChange" Value="1" />
+                    <Setter Property="IsSnapToTickEnabled" Value="True" />
+                    <Setter Property="TickFrequency" Value="1" />
+                </Style>
+            </WrapPanel.Resources>
+            <StackPanel>
+                <TextBlock Text="ColumnWidthプロパティ" />
+                <Slider x:Name="ColumnWidthSlider" Value="150" Maximum="300" Minimum="50" />
+                <TextBlock Text="{Binding ElementName=ColumnWidthSlider,Path=Value}" />
+            </StackPanel>
+            <StackPanel>
+                <TextBlock Text="TableRowHeightプロパティ" />
+                <Slider x:Name="TableRowHeightSlider" Value="30" Maximum="50" Minimum="15" />
+                <TextBlock Text="{Binding ElementName=TableRowHeightSlider,Path=Value}" />
+            </StackPanel>
+            <StackPanel>
+                <TextBlock Text="Axis-Maximumプロパティ" />
+                <Slider x:Name="AxisMaximumSlider" Value="130" Maximum="200" Minimum="101" />
+                <TextBlock Text="{Binding ElementName=AxisMaximumSlider,Path=Value}" />
+            </StackPanel>
+            <StackPanel>
+                <TextBlock Text="Axis-Minimumプロパティ" />
+                <Slider x:Name="AxisMinimumSlider" Value="50" Maximum="100" Minimum="40" />
+                <TextBlock Text="{Binding ElementName=AxisMinimumSlider,Path=Value}" />
+            </StackPanel>
+            <StackPanel>
+                <TextBlock Text="Axis-MajorIntervalプロパティ" />
+                <Slider x:Name="AxisMajorIntervalSlider" Value="25" Maximum="50" Minimum="5" />
+                <TextBlock Text="{Binding ElementName=AxisMajorIntervalSlider,Path=Value}" />
+            </StackPanel>
+            <StackPanel>
+                <TextBlock Text="Axis-MinorIntervalプロパティ" />
+                <Slider x:Name="AxisMinorIntervalSlider" Value="10" Maximum="25" Minimum="5" />
+                <TextBlock Text="{Binding ElementName=AxisMinorIntervalSlider,Path=Value}" />
+            </StackPanel>
+            <StackPanel>
+                <TextBlock Text="期間" />
+                <ComboBox x:Name="PeriodComboBox" SelectedItem="{Binding SelectedPeriod}"
+                      ItemsSource="{Binding Periods}" />
+            </StackPanel>
+            <StackPanel>
+                <TextBlock Text="期間を" />
+                <Button x:Name="AddButton" Click="AddButton_Click"><!-- めんどくさくてコマンド使ってない。ホントは使おう -->
+                    <TextBlock>追加する</TextBlock>
+                </Button>
+            </StackPanel>
+        </WrapPanel>
+    </Grid>
+</Window>

@@ -10,29 +10,26 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace MyClinicalCourse
 {
     /// <summary>
-    /// MainWindow.xaml の相互作用ロジック
+    /// SandboxWindow.xaml の相互作用ロジック
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class SandboxWindow : Window
     {
-        public MainWindow()
+        public SandboxWindow()
         {
             InitializeComponent();
         }
 
-        private void ForwardSandbox_Click(object sender, RoutedEventArgs e)
+        private void AddButton_Click(object sender, RoutedEventArgs e)
         {
-            var vm = new SandboxWindowViewModel();
-            Window sandbox = new SandboxWindow()
+            if (this.DataContext is SandboxWindowViewModel vm)
             {
-                DataContext = vm
-            };
-            sandbox.Show();
+                vm.AddCourseItem();
+            }
         }
     }
 }

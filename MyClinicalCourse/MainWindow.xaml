@@ -4,9 +4,37 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MyClinicalCourse"
+        xmlns:cc="clr-namespace:MyClinicalCourse.ClinicalCourse"
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Button Grid.Row="0" x:Name="ForwardSandbox"
+                Click="ForwardSandbox_Click">
+            <TextBlock>お試し</TextBlock>
+        </Button>
+        <!--
+        <Canvas Grid.Row="1">
+            <Canvas.Resources>
+                <PointCollection x:Key="Points">
+                    <Point X="100" Y="200" />
+                    <Point X="150" Y="100" />
+                    <Point X="200" Y="150" />
+                    <Point X="250" Y="50" />
+                </PointCollection>
+            </Canvas.Resources>
+            <cc:Markers ItemsSource="{StaticResource Points}">
+                <cc:Markers.MarkerTemplate>
+                    <DataTemplate DataType="{x:Type Point}">
+                        <Rectangle Width="10" Height="10" Fill="Red" />
+                    </DataTemplate>
+                </cc:Markers.MarkerTemplate>
+            </cc:Markers>
+            <Polyline Stroke="Red" StrokeThickness="2" Points="{StaticResource Points}" />
+        </Canvas>
+        -->
     </Grid>
 </Window>

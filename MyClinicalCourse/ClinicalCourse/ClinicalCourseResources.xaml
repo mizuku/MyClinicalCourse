@@ -1,0 +1,629 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:cc="clr-namespace:MyClinicalCourse.ClinicalCourse">
+    <!-- ラベル文字列スタイル -->
+    <Style TargetType="TextBlock" x:Key="AxisLabelTextStyle">
+        <Setter Property="TextAlignment" Value="Center" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="VerticalAlignment" Value="Stretch" />
+    </Style>
+
+    <!-- タイトル文字列スタイル -->
+    <Style TargetType="TextBlock" x:Key="AxisTitleTextStyle">
+        <Setter Property="TextAlignment" Value="Center" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="VerticalAlignment" Value="Stretch" />
+    </Style>
+
+    <!-- マーカーコレクション定義 -->
+    <Style TargetType="{x:Type cc:Markers}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type cc:Markers}">
+                    <ItemsPresenter />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemsPanel">
+            <Setter.Value>
+                <ItemsPanelTemplate>
+                    <Canvas HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                </ItemsPanelTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemTemplate" Value="{Binding RelativeSource={RelativeSource Self},Path=MarkerTemplate}" />
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="{x:Type ListBoxItem}">
+                    <Setter Property="OverridesDefaultStyle" Value="False" />
+                    <Setter Property="Padding" Value="0" />
+                    <Setter Property="Margin" Value="0" />
+                    <Setter Property="Canvas.Left" Value="{Binding X}" />
+                    <Setter Property="Canvas.Top" Value="{Binding Y}" />
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                <Grid Background="{TemplateBinding Background}">
+                                    <ContentPresenter
+                                        x:Name="contentPresenter"
+                                        Content="{TemplateBinding Content}"
+                                        ContentTemplate="{TemplateBinding ContentTemplate}"
+                                        Margin="{TemplateBinding Padding}" />
+                                </Grid>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- シリーズのプロット定義 -->
+    <Style TargetType="{x:Type cc:Series}">
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type cc:Series}">
+                    <Grid Visibility="{TemplateBinding Visibility}" MinHeight="1"><!-- 最低1以上の高さが無いと表示がおかしい -->
+                        <Canvas>
+                            <Canvas.LayoutTransform>
+                                <ScaleTransform ScaleX="1" ScaleY="-1" CenterX=".5" CenterY=".5" />
+                            </Canvas.LayoutTransform>
+                            <Polyline Points="{TemplateBinding PlotPoints}"
+                                  Stroke="{TemplateBinding Stroke}"
+                                  StrokeThickness="{TemplateBinding StrokeThickness}"
+                                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                            <cc:Markers ItemsSource="{TemplateBinding PlotPoints}" MarkerTemplate="{TemplateBinding MarkerTemplate}" />
+                        </Canvas>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
+    <!-- 縦軸のラベル定義 -->
+    <Style TargetType="{x:Type ItemsControl}" x:Key="AxisLabelVerticalStyle">
+        <Setter Property="ItemsPanel">
+            <Setter.Value>
+                <ItemsPanelTemplate>
+                    <Canvas HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                </ItemsPanelTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="ContentPresenter">
+                    <Setter Property="HorizontalAlignment" Value="Stretch" />
+                    <Setter Property="Canvas.Bottom" Value="{Binding Position}" />
+                </Style>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemTemplate">
+            <Setter.Value>
+                <DataTemplate DataType="{x:Type cc:AxisTickModel}">
+                    <Canvas>
+                        <TextBlock Style="{StaticResource AxisLabelTextStyle}"
+                                   Width="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl}, Path=ActualWidth}"
+                                   Canvas.Bottom="-6"
+                                   Text="{Binding Label}" />
+                    </Canvas>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- 横軸のラベル定義 (未使用) -->
+    <Style TargetType="{x:Type ItemsControl}" x:Key="AxisLabelHorizontalStyle">
+        <Setter Property="ItemsPanel">
+            <Setter.Value>
+                <ItemsPanelTemplate>
+                    <Canvas HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                </ItemsPanelTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="ContentPresenter">
+                    <Setter Property="VerticalAlignment" Value="Stretch" />
+                    <Setter Property="Canvas.Left" Value="{Binding Position}" />
+                </Style>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemTemplate">
+            <Setter.Value>
+                <DataTemplate DataType="{x:Type cc:AxisTickModel}">
+                    <Canvas>
+                        <TextBlock Style="{StaticResource AxisLabelTextStyle}"
+                                   Height="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl}, Path=ActualHeight}"
+                                   Canvas.Left="-3"
+                                   Text="{Binding Label}" />
+                    </Canvas>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- 軸の定義 -->
+    <Style TargetType="{x:Type cc:Axis}">
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type cc:Axis}">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <Grid x:Name="ParentGrid"
+                              Background="Transparent"
+                              IsHitTestVisible="True">
+                            <ItemsControl x:Name="AxisLabels"
+                                          Width="{Binding ElementName=ParentGrid, Path=ActualWidth}"
+                                          Height="{Binding ElementName=ParentGrid, Path=ActualHeight}"
+                                          ItemsSource="{TemplateBinding LabelItems}" />
+                            <Rectangle x:Name="CheckedVisualElement" Stroke="#886DBDD1" Fill="#336DBDD1" StrokeThickness="1" Visibility="Collapsed"
+                                       IsHitTestVisible="False" />
+                        </Grid>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Top">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="AxisLabels"
+                                                                       Storyboard.TargetProperty="Style">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource AxisLabelHorizontalStyle}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Left">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="AxisLabels"
+                                                                       Storyboard.TargetProperty="Style">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource AxisLabelVerticalStyle}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Right">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="AxisLabels"
+                                                                       Storyboard.TargetProperty="Style">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource AxisLabelVerticalStyle}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Bottom">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="AxisLabels"
+                                                                       Storyboard.TargetProperty="Style">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource AxisLabelHorizontalStyle}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                            <VisualStateGroup x:Name="CheckStates">
+                                <VisualState x:Name="Checked">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)"
+                                                                       Storyboard.TargetName="CheckedVisualElement">
+                                            <DiscreteObjectKeyFrame KeyTime="0"
+                                                                    Value="{x:Static Visibility.Visible}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Unchecked" />
+                                <VisualState x:Name="Indeterminate" />
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#33000000" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- 縦軸の目盛り定義 -->
+    <Style TargetType="{x:Type ItemsControl}" x:Key="AxisTickVerticalStyle">
+        <Setter Property="ItemsPanel">
+            <Setter.Value>
+                <ItemsPanelTemplate>
+                    <Canvas HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                </ItemsPanelTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="ContentPresenter">
+                    <Setter Property="HorizontalAlignment" Value="Stretch" />
+                    <Setter Property="Canvas.Bottom" Value="{Binding Position}" />
+                    <Setter Property="Canvas.Right" Value="0" /><!-- 右寄せ -->
+                </Style>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemTemplate">
+            <Setter.Value>
+                <DataTemplate DataType="{x:Type cc:AxisTickModel}">
+                    <Line X1="0" X2="{Binding TickSize}" Y1="0" Y2="0"
+                          Stroke="{Binding Tick}"  StrokeThickness="1" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- 横軸の目盛り定義 (未使用) -->
+    <Style TargetType="{x:Type ItemsControl}" x:Key="AxisTickHorizontalStyle">
+        <Setter Property="ItemsPanel">
+            <Setter.Value>
+                <ItemsPanelTemplate>
+                    <Canvas HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                </ItemsPanelTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="ContentPresenter">
+                    <Setter Property="VerticalAlignment" Value="Stretch" />
+                    <Setter Property="Canvas.Left" Value="{Binding Position}" />
+                    <Setter Property="Canvas.Top" Value="0" /><!-- 上寄せ -->
+                </Style>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemTemplate">
+            <Setter.Value>
+                <DataTemplate DataType="{x:Type cc:AxisTickModel}">
+                    <Line X1="0" X2="0" Y1="0" Y2="{Binding TickSize}"
+                          Stroke="{Binding Tick}"  StrokeThickness="1" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- 軸の目盛り定義 -->
+    <Style TargetType="{x:Type cc:AxisTick}">
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type cc:AxisTick}">
+                    <Border x:Name="RootBorder" BorderBrush="Black"
+                            Width="{TemplateBinding TickAreaWidth}" Height="{TemplateBinding TickAreaHeight}">
+                        <Grid x:Name="ParentGrid">
+                            <ItemsControl x:Name="AxisTicks"
+                                          Width="{Binding ElementName=ParentGrid, Path=ActualWidth}"
+                                          Height="{Binding ElementName=ParentGrid, Path=ActualHeight}"
+                                          ItemsSource="{TemplateBinding TickItems}" />
+                        </Grid>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup Name="CommonStates">
+                                <VisualState Name="Top">
+                                    <Storyboard>
+                                        <ThicknessAnimation Storyboard.TargetName="RootBorder"
+                                                            Storyboard.TargetProperty="BorderThickness"
+                                                            Duration="0"
+                                                            To="0,0,0,1" />
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="AxisTicks"
+                                                                       Storyboard.TargetProperty="Style">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource AxisTickHorizontalStyle}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState Name="Left">
+                                    <Storyboard>
+                                        <ThicknessAnimation Storyboard.TargetName="RootBorder"
+                                                            Storyboard.TargetProperty="BorderThickness"
+                                                            Duration="0"
+                                                            To="0,0,1,0" />
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="AxisTicks"
+                                                                       Storyboard.TargetProperty="Style">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource AxisTickVerticalStyle}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState Name="Right">
+                                    <Storyboard>
+                                        <ThicknessAnimation Storyboard.TargetName="RootBorder"
+                                                            Storyboard.TargetProperty="BorderThickness"
+                                                            Duration="0"
+                                                            To="1,0,0,0" />
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="AxisTicks"
+                                                                       Storyboard.TargetProperty="Style">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource AxisTickVerticalStyle}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState Name="Bottom">
+                                    <Storyboard>
+                                        <ThicknessAnimation Storyboard.TargetName="RootBorder"
+                                                            Storyboard.TargetProperty="BorderThickness"
+                                                            Duration="0"
+                                                            To="0,1,0,0" />
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="AxisTicks"
+                                                                       Storyboard.TargetProperty="Style">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource AxisTickHorizontalStyle}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ヘッダーの日付列定義 -->
+    <Style TargetType="{x:Type ListBox}" x:Key="ClinicalCourseHeaderStyle">
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ListBox}">
+                    <ItemsPresenter />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemsPanel">
+            <Setter.Value>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="{x:Type ListBoxItem}">
+                    <Setter Property="OverridesDefaultStyle" Value="True" />
+                    <Setter Property="Width" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type cc:ClinicalCourse}},Path=ColumnWidth}" />
+                    <Setter Property="Background" Value="Transparent" />
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type ContentControl}">
+                                <Border Background="{TemplateBinding Background}" BorderBrush="Black" BorderThickness="0,0,1,0" Padding="0,5,0,0">
+                                    <ContentPresenter />
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="#33000000" />
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemTemplate">
+            <Setter.Value>
+                <DataTemplate DataType="{x:Type cc:HeaderModel}">
+                    <TextBlock HorizontalAlignment="Center" 
+                               VerticalAlignment="Top"
+                               Text="{Binding Label}"/>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- 表のヘッダー定義 -->
+    <Style TargetType="{x:Type ListBox}" x:Key="TableHeaderCellStyle">
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ListBox}">
+                    <ItemsPresenter />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemsPanel">
+            <Setter.Value>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Vertical" />
+                </ItemsPanelTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="{x:Type ListBoxItem}">
+                    <Setter Property="OverridesDefaultStyle" Value="True" />
+                    <Setter Property="Background" Value="Transparent" />
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type ContentControl}">
+                                <Border Background="{TemplateBinding Background}" BorderBrush="Black" BorderThickness="0,0,0,1"
+                                        Height="{Binding RelativeSource={RelativeSource AncestorType={x:Type cc:ClinicalCourse}}, Path=TableRowHeight}">
+                                    <ContentPresenter />
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="#33000000" />
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- 表のセル定義 -->
+    <Style TargetType="{x:Type ListBox}" x:Key="TableCellStyle">
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ListBox}">
+                    <ItemsPresenter />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemsPanel">
+            <Setter.Value>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="{x:Type ListBoxItem}">
+                    <Setter Property="OverridesDefaultStyle" Value="True" />
+                    <Setter Property="Background" Value="Transparent" />
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type ContentControl}">
+                                <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                                        Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type cc:ClinicalCourse}}, Path=ColumnWidth}">
+                                    <ContentPresenter />
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding}" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- 表の行定義 -->
+    <Style TargetType="{x:Type ListBox}" x:Key="TableRowStyle">
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ListBox}">
+                    <ItemsPresenter />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemsPanel">
+            <Setter.Value>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Vertical" />
+                </ItemsPanelTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="{x:Type ListBoxItem}">
+                    <Setter Property="OverridesDefaultStyle" Value="True" />
+                    <Setter Property="Background" Value="Transparent" />
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type ContentControl}">
+                                <Border Background="{TemplateBinding Background}" BorderBrush="Black" BorderThickness="0,0,0,1"
+                                        Height="{Binding RelativeSource={RelativeSource AncestorType={x:Type cc:ClinicalCourse}}, Path=TableRowHeight}">
+                                    <ContentPresenter />
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <ListBox Style="{StaticResource TableCellStyle}" ItemsSource="{Binding}" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- 看護表全体の定義 -->
+    <Style TargetType="{x:Type cc:ClinicalCourse}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type cc:ClinicalCourse}">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="30" />
+                                <RowDefinition Height="20" />
+                                <RowDefinition />
+                                <RowDefinition Height="10" /><!-- マージン -->
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <!-- グラフのグリッド -->
+                            <Grid Grid.Column="1" Grid.Row="2">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Grid Grid.Column="0" Grid.Row="0" x:Name="PART_TopAxesLabelGrid" />
+                                <Grid Grid.Column="0" Grid.Row="1" x:Name="PART_TopAxesTickGrid" />
+                                <Grid Grid.Column="0" Grid.Row="4" x:Name="PART_BottomAxesLabelGrid" />
+                                <Grid Grid.Column="0" Grid.Row="3" x:Name="PART_BottomAxesTickGrid" />
+                                <Grid Grid.Column="2" Grid.Row="2" x:Name="PART_RightAxesLabelGrid" />
+                                <Grid Grid.Column="1" Grid.Row="2" x:Name="PART_RightAxesTickGrid" />
+                                <Grid Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" x:Name="TopAxesArea" />
+                                <Grid Grid.Column="0" Grid.Row="3" Grid.RowSpan="2" x:Name="BottomAxesArea" />
+                                <Grid Grid.Column="0" Grid.Row="2"  x:Name="PART_PlotGrid" />
+                            </Grid>
+                            <!-- 左軸用のグリッド。表の見出しと幅を一致させるため特別扱い -->
+                            <Grid Grid.Column="0" Grid.Row="2">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="{Binding ElementName=TopAxesArea,Path=ActualHeight}" />
+                                    <RowDefinition />
+                                    <RowDefinition Height="{Binding ElementName=BottomAxesArea,Path=ActualHeight}" />
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="1">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Grid.Column="0" x:Name="PART_LeftAxesLabelGrid" />
+                                    <Grid Grid.Column="1" x:Name="PART_LeftAxesTickGrid" />
+                                </Grid>
+                            </Grid>
+                            <!-- 表見出し -->
+                            <Grid Grid.Column="0" Grid.Row="4">
+                                <ListBox x:Name="PART_TableHeaderCells" Style="{StaticResource TableHeaderCellStyle}">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding}" />
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </Grid>
+                            <!-- 表中身 -->
+                            <Grid Grid.Column="1" Grid.Row="4">
+                                <ListBox x:Name="PART_TableRows" Style="{StaticResource TableRowStyle}" />
+                            </Grid>
+                            <!-- 罫線 -->
+                            <Border Grid.Column="0" Grid.RowSpan="5"
+                                    BorderBrush="Black" BorderThickness="0,0,1,0" />
+                            <Border Grid.ColumnSpan="2" Grid.RowSpan="5"
+                                    BorderBrush="Black" BorderThickness="1" />
+                            <Border Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2"
+                                    BorderBrush="Black" BorderThickness="0,0,0,1" />
+                            <Border Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="2"
+                                    BorderBrush="Black" BorderThickness="0,0,0,1" />
+                            <!-- 見出しと罫線 -->
+                            <ListBox Grid.Column="1" Grid.Row="0" Grid.RowSpan="5"
+                                     x:Name="PART_HeaderItems"
+                                     Style="{StaticResource ClinicalCourseHeaderStyle}"
+                                     />
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>
